@@ -12,12 +12,15 @@ const config_init =
     -1,-1,-1,-1,-1,-1,-1,-1,
     -1,-1,-1,-1,-1,-1,-1,-1,
      1, 1, 1, 1, 1, 1, 1, 1,
-     7, 3, 5,11, 9, 5, 3, 7]
+     7, 3, 5,11, 9, 5, 3, 7];
 let config = config_init;
 let moveHability = 0;
 let movingHouse;
 let possibleHouses = [];
 let turno = 1;
+
+import {move} from "./functions/utlitarias.js";
+import {getPossibleHouses} from "./functions/casas_compativeis.js";
 
 document.body.style.backgroundColor = "grey";
 
@@ -42,7 +45,6 @@ btn.onclick = function() {
               -1,-1,-1,-1,-1,-1,-1,-1,
                1, 1, 1, 1, 1, 1, 1, 1,
                7, 3, 5,11, 9, 5, 3, 7]
-    console.log(config_init);
     moveHability = 0;
     renderize();
 }
@@ -156,204 +158,5 @@ function renderize()
     });
 }
 
-function getPossibleHouses(tabuleiro, casa)
-{
-    let resposta = [];
-    let peca = tabuleiro[casa]; 
-    let position = line_column(casa);
 
-    switch(peca)
-    {
-        //0 e 1 para movimento dos peões
-        case 0:
-            if(tabuleiro[parseInt(casa) + 8] == -1) resposta.push(parseInt(casa) + 8);
-            if(Math.floor(casa/8) == 1 && tabuleiro[parseInt(casa) + 16] == -1) resposta.push(parseInt(casa) + 16);
-            if(sameLine(parseInt(casa) + 8), parseInt(casa) + 7)
-                if(tabuleiro[parseInt(casa) + 7] != -1 && tabuleiro[parseInt(casa) + 7] % 2 == 1) 
-                    resposta.push(parseInt(casa) + 7);
-            if(sameLine(parseInt(casa) + 8), parseInt(casa) + 9)
-                if(tabuleiro[parseInt(casa) + 9] != -1 && tabuleiro[parseInt(casa) + 9] % 2 == 1) 
-                    resposta.push(parseInt(casa) + 9);
-            break;
-        case 1: 
-            if(tabuleiro[parseInt(casa) - 8] == -1) resposta.push(parseInt(casa) - 8);
-            if(Math.floor(casa/8) == 6 && tabuleiro[parseInt(casa) - 16] == -1) resposta.push(parseInt(casa) - 16);
-            if(sameLine(parseInt(casa) - 8), parseInt(casa) - 7)
-                if(tabuleiro[parseInt(casa) - 7] != -1 && tabuleiro[parseInt(casa) - 7] % 2 == 0) 
-                    resposta.push(parseInt(casa) - 7);
-            if(sameLine(parseInt(casa) - 8), parseInt(casa) - 9)
-                if(tabuleiro[parseInt(casa) - 9] != -1 && tabuleiro[parseInt(casa) - 9] % 2 == 0) 
-                    resposta.push(parseInt(casa) - 9);
-            break;
-        case 2:
-            resposta = horseMovement(position, config).filter(function(house) {
-                return (tabuleiro[house] == -1 || tabuleiro[house] % 2 == 1);
-            });
-            break;
-        case 3:
-            resposta = horseMovement(position, config).filter(function(house) {
-                return (tabuleiro[house] == -1 || tabuleiro[house] % 2 == 0);
-            });
-            break;
-        case 4: 
-            resposta = bishopMovement(position, config).filter(function(house) {
-                return (tabuleiro[house] == -1 || tabuleiro[house] % 2 == 1);
-            });
-            break;
-        case 5:
-            resposta = bishopMovement(position, config).filter(function(house) {
-                return (tabuleiro[house] == -1 || tabuleiro[house] % 2 == 0);
-            });
-            break;
-        case 6:
-            resposta = towerMovement(position, config).filter(function(house) {
-                return (tabuleiro[house] == -1 || tabuleiro[house] % 2 == 1);
-            });
-            break;
-        case 7:
-            resposta = towerMovement(position, config).filter(function(house) {
-                return (tabuleiro[house] == -1 || tabuleiro[house] % 2 == 0);
-            });
-            break;
-        case 8:
-            resposta = kingMovement(position, config).filter(function(house) {
-                return (tabuleiro[house] == -1 || tabuleiro[house] % 2 == 1)
-            });
-            break;
-        case 9:
-            resposta = kingMovement(position, config).filter(function(house) {
-                return (tabuleiro[house] == -1 || tabuleiro[house] % 2 == 0)
-            });
-            break;
-        case 10:
-            resposta = towerMovement(position, config).concat(bishopMovement(position,config)).filter(function(house) {
-                return (tabuleiro[house] == -1 || tabuleiro[house] % 2 == 1);
-            });
-            break;
-        case 11:
-            resposta = towerMovement(position, config).concat(bishopMovement(position,config)).filter(function(house) {
-                return (tabuleiro[house] == -1 || tabuleiro[house] % 2 == 0);
-            });
-            break;
-    }
 
-    return resposta;
-}
-
-function sameLine(x, y)
-{
-    if( Math.floor(x / 8) == Math.floor(y / 8)) return 1;
-    else return 0;
-}
-
-function move(tabuleiro, casaAntiga, casaNova)
-{
-    tabuleiro[casaNova] = tabuleiro[casaAntiga];
-    tabuleiro[casaAntiga] = -1;
-    return tabuleiro;
-}
-
-function line_column(casa)
-{
-    let pos = []
-    pos.push(Math.floor(casa / 8));
-    pos.push(casa % 8);
-
-    return pos;
-}
-
-function house(position)
-{
-    return parseInt(8 * position[0]) + parseInt(position[1]);
-}
-
-function horseMovement(position, tabuleiro)
-{
-    let resposta = [];
-    let casa = house(position);
-    if(position[0] >= 2 && position[1] <= 6) resposta.push(parseInt(casa) - 15);
-    if(position[0] >= 1 && position[1] <= 5) resposta.push(parseInt(casa) - 6);
-    if(position[0] <= 5 && position[1] <= 6) resposta.push(parseInt(casa) + 17);
-    if(position[0] <= 6 && position[1] <= 5) resposta.push(parseInt(casa) + 10);
-    if(position[0] <= 5 && position[1] >= 1) resposta.push(parseInt(casa) + 15);
-    if(position[0] <= 6 && position[1] >= 2) resposta.push(parseInt(casa) + 6);
-    if(position[0] >= 2 && position[1] >= 1) resposta.push(parseInt(casa) - 17);
-    if(position[0] >= 1 && position[1] >= 2) resposta.push(parseInt(casa) - 10);
-
-    return resposta;
-}
-
-function bishopMovement(position, tabuleiro)
-{
-    let resposta = [];
-    let casa = house(position);
-
-    for(let i = 1; i <= Math.min(position[0], position[1]); i++)
-    {
-        resposta.push(parseInt(casa) - 9 * i);
-        if(tabuleiro[parseInt(casa) - 9 * i] != -1) break;
-    }
-    for(let i = 1; i <= 7 - Math.max(position[0], position[1]); i++)
-    {
-        resposta.push(parseInt(casa) + 9 * i);
-        if(tabuleiro[parseInt(casa) + 9 * i] != -1) break;
-    }
-    for(let i = 1; i <= Math.min(position[0], 7 - position[1]); i++)
-    {
-        resposta.push(parseInt(casa) - 7 * i);
-        if(tabuleiro[parseInt(casa) - 7 * i] != -1) break;
-    }
-    for(let i = 1; i <= Math.min(7 - position[0], position[1]); i++)
-    {
-        resposta.push(parseInt(casa) + 7 * i);
-        if(tabuleiro[parseInt(casa) + 7 * i] != -1) break;
-    }
-
-    return resposta;
-}
-
-function towerMovement(position, tabuleiro)
-{
-    let resposta = [];
-    let casa = house(position);
-
-    for(let i = 1; i <= 7 - position[0]; i++)
-    {
-        resposta.push(parseInt(casa) + 8 * i);
-        if(tabuleiro[parseInt(casa) + 8 * i] != -1) break;
-    }
-    for(let i = 1; i <= position[0]; i++)
-    {
-        resposta.push(parseInt(casa) - 8 * i);
-        if(tabuleiro[parseInt(casa) - 8 * i] != -1) break;
-    }
-    for(let i = 1; i <= 7 - position[1]; i++)
-    {
-        resposta.push(parseInt(casa) + i);
-        if(tabuleiro[parseInt(casa) + i] != -1) break;
-    }
-    for(let i = 1; i <= position[1]; i++)
-    {
-        resposta.push(parseInt(casa) - i);
-        if(tabuleiro[parseInt(casa) - i] != -1) break;
-    }
-
-    return resposta;
-}
-
-function kingMovement(position)
-{
-    let resposta = [];
-    let casa = house(position);
-
-    if(position[0] >= 1 && position[1] >= 1) resposta.push(parseInt(casa) - 9);
-    if(position[0] >= 1) resposta.push(parseInt(casa) - 8);
-    if(position[0] >= 1 && position[1] <= 6) resposta.push(parseInt(casa) - 7);
-    if(position[1] <= 6) resposta.push(parseInt(casa) + 1);
-    if(position[0] <= 6 && position[1] <= 6) resposta.push(parseInt(casa) + 9);
-    if(position[0] <= 6) resposta.push(parseInt(casa) + 8);
-    if(position[0] <= 6 && position[1] >=1) resposta.push(parseInt(casa) + 7);
-    if(position[1] >= 1) resposta.push(parseInt(casa) - 1);
-
-    return resposta;
-}
