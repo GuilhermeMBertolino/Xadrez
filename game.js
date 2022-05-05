@@ -1,26 +1,16 @@
 let tabuleiro = [];
-/*Configuração inicial do tabuleiro: 
-0 -> Peão preto , 1 -> Peão branco , 2 -> Cavalo preto, 3 -> Cavalo branco
-4 -> Bispo preto, 5 -> Bispo branco, 6 -> Torre preta, 7 -> Torre branca
-8 -> Rei preto, 9 -> Rei Branco, 10 -> Rainha preta, 11 -> Rainha branca
-*/
-const config_init = 
-    [6, 2, 4,10, 8, 4, 2, 6,
-     0, 0, 0, 0, 0, 0, 0, 0,
-    -1,-1,-1,-1,-1,-1,-1,-1,
-    -1,-1,-1,-1,-1,-1,-1,-1,
-    -1,-1,-1,-1,-1,-1,-1,-1,
-    -1,-1,-1,-1,-1,-1,-1,-1,
-     1, 1, 1, 1, 1, 1, 1, 1,
-     7, 3, 5,11, 9, 5, 3, 7];
-let config = config_init;
 let moveHability = 0;
 let movingHouse;
 let possibleHouses = [];
 let turno = 1;
 
-import {move} from "./functions/utlitarias.js";
+const fundo = document.getElementById("tabuleiro");
+
+import {move, arrayCpy, initial_state} from "./functions/utlitarias.js";
+let config = initial_state();
+Array.prototype.arrayCpy = arrayCpy;
 import {getPossibleHouses} from "./functions/casas_compativeis.js";
+import {renderize} from "./functions/renderizar.js";
 
 document.body.style.backgroundColor = "grey";
 
@@ -36,17 +26,11 @@ btn.style.fontSize = "18";
 btn.style.fontFamily = "Courier New";
 btn.style.color = "white";
 
-btn.onclick = function() {
-    config = [6, 2, 4,10, 8, 4, 2, 6,
-              0, 0, 0, 0, 0, 0, 0, 0,
-              -1,-1,-1,-1,-1,-1,-1,-1,
-              -1,-1,-1,-1,-1,-1,-1,-1,
-              -1,-1,-1,-1,-1,-1,-1,-1,
-              -1,-1,-1,-1,-1,-1,-1,-1,
-               1, 1, 1, 1, 1, 1, 1, 1,
-               7, 3, 5,11, 9, 5, 3, 7]
+btn.onclick = function() 
+{
+    config = initial_state();
     moveHability = 0;
-    renderize();
+    tabuleiro.arrayCpy(renderize(tabuleiro, config));
 }
 
 document.body.appendChild(btn);
@@ -86,7 +70,6 @@ for(let i = 0; i < 64; i++)
 
     tab.id = i;
 
-    //eventos
     tab.onmouseover = function() { tab.style.opacity = "0.5"; }
     tab.onmouseleave = function() { tab.style.opacity = "1.0"; }
     tab.onclick = function(event) {
@@ -103,7 +86,7 @@ for(let i = 0; i < 64; i++)
         else if(possibleHouses.includes(parseInt(event.target.id)))
         {
             config = move(config, movingHouse, event.target.id)
-            renderize();
+            tabuleiro.arrayCpy(renderize(tabuleiro, config));
             moveHability = 0;
             possibleHouses.forEach(function(item)
             {
@@ -129,34 +112,10 @@ for(let i = 0; i < 64; i++)
     tabuleiro.push(tab);
 }
 
-renderize();
+tabuleiro.arrayCpy(renderize(tabuleiro, config));
 
 tabuleiro.forEach(function (item) {
-    document.body.appendChild(item);
+    fundo.appendChild(item);
 });
-
-function renderize()
-{
-    tabuleiro.forEach(function(item, indice) {
-        item.title = config[indice];
-        switch(config[indice])
-        {
-            case 0: item.data = "imagens/peao_preto.png"; break;
-            case 1: item.data = "imagens/peao_branco.png"; break;
-            case 2: item.data = "imagens/cavalo_preto.png"; break;
-            case 3: item.data = "imagens/cavalo_branco.png"; break;
-            case 4: item.data = "imagens/bispo_preto.png"; break;
-            case 5: item.data = "imagens/bispo_branco.png"; break;
-            case 6: item.data = "imagens/torre_preta.png"; break;
-            case 7: item.data = "imagens/torre_branca.png"; break;
-            case 8: item.data = "imagens/rei_preto.png"; break;
-            case 9: item.data = "imagens/rei_branco.png"; break;
-            case 10: item.data = "imagens/rainha_preta.png"; break;
-            case 11: item.data = "imagens/rainha_branca.png"; break;
-            default: item.data = "imagens/fundo.png";
-        }
-    });
-}
-
 
 

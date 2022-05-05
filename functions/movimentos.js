@@ -1,5 +1,7 @@
 import { sameLine } from "./utlitarias.js";
 
+//Movimento do peão, o peão é o único que tem direção, ou seja, o movimento é diferente se for branco ou preto,
+//Assim ele tem que testar se é branco (1) ou preto (0)
 export function pawnMovement(tabuleiro, casa)
 {
     let resposta = [];
@@ -32,6 +34,8 @@ export function pawnMovement(tabuleiro, casa)
     return resposta;
 }
 
+//Movimento do cavalo, ele tem até 8 possíveis movimentos e só precisa saber sua posição para saber onde pode
+//ir, isso porque o cavalo pode pular outras peças
 export function horseMovement(position)
 {
     let resposta = [];
@@ -56,6 +60,7 @@ export function horseMovement(position)
     return resposta;
 }
 
+//Movimento do bispo, pode ir nas quatro diagonais até encontrar uma outra peça
 export function bishopMovement(position, tabuleiro)
 {
     let resposta = [];
@@ -85,6 +90,7 @@ export function bishopMovement(position, tabuleiro)
     return resposta;
 }
 
+//Movimento da torre, pode ir na horizontal ou vertical até encontrar outra peça
 export function towerMovement(position, tabuleiro)
 {
     let resposta = [];
@@ -114,6 +120,8 @@ export function towerMovement(position, tabuleiro)
     return resposta;
 }
 
+//Movimento do rei, assim como o cavalo, tem até 8 movimentos possíveis e só precisa saber sua posição,
+//isso porque ele só se move 1 casa
 export function kingMovement(position)
 {
     let resposta = [];
@@ -131,11 +139,13 @@ export function kingMovement(position)
     return resposta;
 }
 
+//Movimento da rainha, é a soma dos movimentos do bispo e da torre
 export function queenMovement(position, tabuleiro)
 {
     return bishopMovement(position, tabuleiro).concat(towerMovement(position, tabuleiro));
 }
 
+//Retorna a casa do tabuleiro, dada a linha e a coluna
 function house(position)
 {
     return parseInt(8 * position[0]) + parseInt(position[1]);
