@@ -3,28 +3,19 @@ let moveHability = 0;
 let movingHouse;
 let possibleHouses = [];
 let turno = 1;
+let roque = [true, true, true, true];
 
 const fundo = document.getElementById("tabuleiro");
 
-import {move, arrayCpy, initial_state} from "./functions/utlitarias.js";
+import {move, arrayCpy, initial_state, paraAlfanum, paraCodDecimal, roqueNovo, executarRoque} from "./functions/utlitarias.js";
 let config = initial_state();
 Array.prototype.arrayCpy = arrayCpy;
 import {getPossibleHouses} from "./functions/casas_compativeis.js";
 import {renderize} from "./functions/renderizar.js";
+import {xeque, xeque_mate} from "./functions/xeque.js";
 
-document.body.style.backgroundColor = "grey";
-
-let btn = document.createElement("button");
-btn.innerHTML = "REINICIAR";
-btn.style.position = "absolute";
-btn.style.left = "600px";
-btn.style.top = "300px";
-btn.style.width = "120px";
-btn.style.height = "60px";
-btn.style.backgroundColor = "0E2B66";
-btn.style.fontSize = "18";
-btn.style.fontFamily = "Courier New";
-btn.style.color = "white";
+let btn = document.getElementById("reiniciar");
+let xequeBtn = document.getElementById("xeque");
 
 btn.onclick = function() 
 {
@@ -33,20 +24,9 @@ btn.onclick = function()
     tabuleiro.arrayCpy(renderize(tabuleiro, config));
 }
 
-document.body.appendChild(btn);
-
-let turn = document.createElement("button");
-turn.style.width = "75px";
-turn.style.height = "75px";
-turn.style.position = "absolute";
-turn.style.left = "600px";
-turn.style.top = "200px";
+let turn = document.getElementById("turno");
 turn.style.backgroundColor = "white";
-turn.innerHTML = "BRANCAS";
-turn.style.fontSize = "12";
-turn.style.borderRadius = "50%";
-
-document.body.appendChild(turn);
+turn.innerHTML = "Brancas";
 
 //Inicialização dos elementos do tabuleiro
 for(let i = 0; i < 64; i++)
@@ -54,39 +34,70 @@ for(let i = 0; i < 64; i++)
     let tab = document.createElement("object");
     if(i % 2 == 0)
     {  
-        if(Math.floor(i/8) % 2 == 0)  tab.style.backgroundColor = "17202A"; 
-        else tab.style.backgroundColor = "616A6B";
+        if(Math.floor(i/8) % 2 == 0)  
+            tab.className = "preto";
+        else 
+            tab.className = "branco";
     }
     else
     {
-        if(Math.floor(i/8) % 2 == 0)  tab.style.backgroundColor = "616A6B"; 
-        else tab.style.backgroundColor = "17202A";
+        if(Math.floor(i/8) % 2 == 0)  
+            tab.className = "branco";
+        else 
+            tab.className = "preto";
     }
-    tab.style.width = "72px";
-    tab.style.height = "72px";
-    tab.style.position = "absolute";
-    tab.style.left =  72 * (i % 8) + "px";
-    tab.style.top = 72 * Math.floor(i / 8) + "px";
 
     tab.id = i;
 
-    tab.onmouseover = function() { tab.style.opacity = "0.5"; }
-    tab.onmouseleave = function() { tab.style.opacity = "1.0"; }
-    tab.onclick = function(event) {
-        if(moveHability == 0 && event.target.title % 2 == turno)
+    tab.onclick = function(event) 
+    {
+        if(event.target.title % 2 == turno && !possibleHouses.includes(parseInt(event.target.id)))
         {
             movingHouse = event.target.id
-            possibleHouses = getPossibleHouses(config, event.target.id);
-            possibleHouses.forEach(function(item)
-            {
-                tabuleiro[item].style.opacity = "0.5"
+            possibleHouses = getPossibleHouses(config, event.target.id, roque).filter((e) => 
+                !xeque(move(config, event.target.id, e), !turno));
+            tabuleiro.forEach((peca) => {
+                if(possibleHouses.includes(parseInt(peca.id)))
+                    peca.style.opacity =  "0.2";
+                else
+                    peca.style.opacity = "1.0";
             });
             moveHability = 1;
         }
-        else if(possibleHouses.includes(parseInt(event.target.id)))
+        else if(moveHability == 1 && possibleHouses.includes(parseInt(event.target.id)))
         {
-            config = move(config, movingHouse, event.target.id)
+            if(event.target.title == -1 || config[movingHouse] % 2 != event.target.title % 2)
+                config.arrayCpy(move(config, movingHouse, event.target.id));
+            else
+            {
+                config.arrayCpy(executarRoque(config, event.target.id));
+                console.log("batata");
+            }
+            roque = roqueNovo(movingHouse, roque);
             tabuleiro.arrayCpy(renderize(tabuleiro, config));
+
+            if(xeque(config, turno))
+            {
+                xequeBtn.innerHTML = "Xeque";
+                xequeBtn.style.display = "inline";
+                if(turno)
+                {
+                    xequeBtn.style.backgroundColor = "black";
+                    xequeBtn.style.color = "white";
+                    if(xeque_mate(config, turno))
+                        alert("Xeque Mate!! As pretas venceram!");
+                }
+                else
+                {
+                    xequeBtn.style.backgroundColor = "white";
+                    xequeBtn.style.color = "black";
+                    if(xeque_mate(config, turno))
+                        alert("Xeque Mate!! As brancas venceram!");
+                }
+            }
+            else
+                xequeBtn.style.display = "none";
+
             moveHability = 0;
             possibleHouses.forEach(function(item)
             {
@@ -97,13 +108,13 @@ for(let i = 0; i < 64; i++)
             if(turno)
             {
                 turn.style.backgroundColor = "white";
-                turn.innerHTML = "BRANCAS";
+                turn.innerHTML = "Brancas";
                 turn.style.color = "black";
             }
             else
             {
                 turn.style.backgroundColor = "black";
-                turn.innerHTML = "PRETAS";
+                turn.innerHTML = "Pretas";
                 turn.style.color = "white";
             }
         }
@@ -117,5 +128,3 @@ tabuleiro.arrayCpy(renderize(tabuleiro, config));
 tabuleiro.forEach(function (item) {
     fundo.appendChild(item);
 });
-
-
